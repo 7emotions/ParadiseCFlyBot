@@ -10,7 +10,7 @@ def server():
 	print(data)
 	msg=data['raw_message']
 	print('\n' + msg +'\n')
-	return '200 OK'
+	return ''
 
 if __name__ == '__main__':
 	app.run()
