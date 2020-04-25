@@ -1,4 +1,3 @@
 # ParadiseCFlyBot
 
-# Bot QQ
-1972006744
+Bot QQ : 1972006744
