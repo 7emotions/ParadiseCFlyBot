@@ -1,6 +1,6 @@
 from flask import Flask,request
 from json import loads
-from urllib import pathname2url as urlencode
+from urllib.request import pathname2url as urlencode
 from googletrans import Translator
 import re
 import requests
@@ -19,7 +19,7 @@ def command(msg):
             search
             translate
     '''
-    
+
     #catch = re.match(r'\/\w+', msg)
     '''
     print(catch)
@@ -47,7 +47,7 @@ def search(kwd):
     '''
     # base = 'https://google.com/search?q='
     # base = 'https://baidu.com/s?wd='
-    print 'searching...'
+    print('searching...')
     base = 'https://cn.bing.com/search?q='
     return base + urlencode(kwd)
 
@@ -60,9 +60,9 @@ def translate(txt):
     Returns:
         String, result
     '''
-    print 'Translating...'
+    print('Translating...')
     translator = Translator(service_urls=['translate.google.cn'])
-    result = re.compile(u'[\u4e00-\u9fa5]')
+    result = re.compile('[\u4e00-\u9fa5]')
     print(txt)
     if result.search(txt):
         print('C2E')
@@ -76,7 +76,7 @@ def translate(txt):
 '''
 def is_contains_chinese(strs):
     for ch in strs:
-        if '\u4e00' <= ch <= '\u9fff':
+        if '\\u4e00' <= ch <= '\\u9fff':
             return True
     return False
 '''
@@ -84,13 +84,13 @@ def is_contains_chinese(strs):
 def server():
     data = request.get_data().decode('utf-8')
     data = loads(data)
-    print data
+    print(data)
     msg = data['raw_message']
     qid = data['user_id']
     print(msg)
     cmd = command(msg)
 
-    
+
 
     if msg :
         if cmd == 'search' :
@@ -103,10 +103,14 @@ def server():
             'message':str(rmsg),
             'auto_escape':False
         }
+        # api_url = 'http://172.17.0.1:5700/send_private_msg'
         api_url = 'http://127.0.0.1:5700/send_private_msg'
         r = requests.post(api_url,data=data)
-        print r
+        print(r)
     return ''
 
 if __name__ == '__main__':
+    # app.run(host='172.18.0.1')
+    #  ^--- fuckin docker
     app.run()
+
