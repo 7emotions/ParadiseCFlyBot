@@ -1,12 +1,11 @@
 from flask import Flask,request
 from json import loads
-from urllib.parse import quote as urlencode
+from urllib import pathname2url as urlencode
 from googletrans import Translator
 import re
+import requests
 
 app = Flask(__name__)
-
-@app.route('/',methods=['POST'])
 
 def command(msg):
     '''
@@ -20,11 +19,21 @@ def command(msg):
             search
             translate
     '''
-
-    catch = re.match(r'\/\w+', msg)
+    
+    #catch = re.match(r'\/\w+', msg)
+    '''
+    print(catch)
     if catch :
         return catch.group()
     else :
+        return False
+    '''
+
+    if 'search' in msg:
+        return 'search'
+    elif 'translate' in msg:
+        return 'translate'
+    else:
         return False
 
 def search(kwd):
@@ -38,6 +47,7 @@ def search(kwd):
     '''
     # base = 'https://google.com/search?q='
     # base = 'https://baidu.com/s?wd='
+    print 'searching...'
     base = 'https://cn.bing.com/search?q='
     return base + urlencode(kwd)
 
@@ -50,25 +60,52 @@ def translate(txt):
     Returns:
         String, result
     '''
+    print 'Translating...'
     translator = Translator(service_urls=['translate.google.cn'])
-    if re.search(r'[\u4e00-\u9fa5]', txt):
+    result = re.compile(u'[\u4e00-\u9fa5]')
+    print(txt)
+    if result.search(txt):
+        print('C2E')
         # Chinese 2 English
         txt = translator.translate(txt,src='zh-cn',dest='en').text
     else :
+        print('E2C')
         # English 2 Chinese
         txt = translator.translate(txt,src='en',dest='zh-cn').text
     return txt
-
+'''
+def is_contains_chinese(strs):
+    for ch in strs:
+        if '\u4e00' <= ch <= '\u9fff':
+            return True
+    return False
+'''
+@app.route('/',methods=['POST'])
 def server():
     data = request.get_data().decode('utf-8')
     data = loads(data)
+    print data
     msg = data['raw_message']
+    qid = data['user_id']
+    print(msg)
     cmd = command(msg)
+
+    
+
     if msg :
-        if msg == 'search' :
-            return search(re.sub('/search ', '', cmd))
-        elif msg == 'translate' :
-            return translate(re.sub('/translate ', '', cmd))
+        if cmd == 'search' :
+            rmsg = search(msg.replace('search',''))
+        elif cmd == 'translate' :
+            rmsg = translate(msg.replace('translate',''))
+        #print rmsg
+        rdata = {
+            'user_id':qid,
+            'message':str(rmsg),
+            'auto_escape':False
+        }
+        api_url = 'http://127.0.0.1:5700/send_private_msg'
+        r = requests.post(api_url,data=data)
+        print r
     return ''
 
 if __name__ == '__main__':
