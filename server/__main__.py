@@ -109,6 +109,7 @@ def server() :
             send_msg = execute(r_msg.replace('/exec ',''))
         else :
             send_r_msg = ''
+            return ''
 
         send_data = {
             'user_id': qid,
