@@ -20,21 +20,19 @@ def command(msg):
             translate
     '''
 
-    #catch = re.match(r'\/\w+', msg)
-    '''
+    catch = re.match(r'\/\w+', msg)
     print(catch)
     if catch :
         return catch.group()
     else :
         return False
-    '''
 
-    if 'search' in msg:
-        return 'search'
-    elif 'translate' in msg:
-        return 'translate'
-    else:
-        return False
+    # if 'search' in msg:
+    #     return 'search'
+    # elif 'translate' in msg:
+    #     return 'translate'
+    # else:
+    #     return False
 
 def search(kwd):
     '''
@@ -80,24 +78,26 @@ def is_contains_chinese(strs):
             return True
     return False
 '''
+
 @app.route('/',methods=['POST'])
 def server():
     data = request.get_data().decode('utf-8')
     data = loads(data)
-    print(data)
-    msg = data['raw_message']
-    qid = data['user_id']
-    print(msg)
-    cmd = command(msg)
+    msg = data['raw_message']   # 消息体
+    type = data['message_type'] # 消息来源类型
+    qid = data['user_id'] # qq号
+    cmd = command(msg) # 命令请求
 
 
 
-    if msg :
-        if cmd == 'search' :
-            rmsg = search(msg.replace('search',''))
-        elif cmd == 'translate' :
-            rmsg = translate(msg.replace('translate',''))
-        #print rmsg
+    if msg and type == 'private' :
+        #      ^^^^^^^^^^^^^^^^ 调试期间先只用私聊
+        print(data)
+        rmsg = ''
+        if cmd == '/search' :
+            rmsg = search(msg.replace('/search ',''))
+        elif cmd == '/translate' :
+            rmsg = translate(msg.replace('/translate ',''))
         rdata = {
             'user_id':qid,
             'message':str(rmsg),
@@ -105,7 +105,8 @@ def server():
         }
         # api_url = 'http://172.17.0.1:5700/send_private_msg'
         api_url = 'http://127.0.0.1:5700/send_private_msg'
-        r = requests.post(api_url,data=data)
+        r = requests.post(api_url,data=rdata)
+        print(rdata)
         print(r)
     return ''
 
