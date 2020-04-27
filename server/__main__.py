@@ -2,9 +2,11 @@ from flask import Flask,request
 from json import loads
 from urllib.request import pathname2url as urlencode
 from googletrans import Translator
+from random import random
 from utilities import *
 import music
 import re
+import os
 import requests
 
 app = Flask(__name__)
@@ -65,6 +67,22 @@ def translate(txt) :
         txt = translator.translate(txt,src='en',dest='zh-cn').text
     return txt
 
+def execute(py_cmd) :
+    '''
+    run a command
+    '''
+
+#     f_name = str(random()) + '.py'
+#     run_cmd = '''
+# echo """
+# ''' + py_cmd + '''
+# """ > ''' + f_name + '''
+# python ''' + f_name + '''
+# rm ''' + f_name + '''
+#     '''
+    # return os.popen(run_cmd).read()
+    return os.popen(py_cmd).read()
+
 @app.route('/',methods=['POST'])
 def server() :
     data = request.get_data().decode('utf-8')
@@ -87,6 +105,8 @@ def server() :
             send_msg = translate(r_msg.replace('/translate ',''))
         elif cmd == '/music' :
             send_msg = music.get(r_msg.replace('/music ',''))
+        elif cmd == '/exec' :
+            send_msg = execute(r_msg.replace('/exec ',''))
         else :
             send_r_msg = ''
 
