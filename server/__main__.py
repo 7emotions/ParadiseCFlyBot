@@ -27,13 +27,6 @@ def command(msg):
     else :
         return False
 
-    # if 'search' in msg:
-    #     return 'search'
-    # elif 'translate' in msg:
-    #     return 'translate'
-    # else:
-    #     return False
-
 def search(kwd):
     '''
     search something from the net
@@ -71,13 +64,6 @@ def translate(txt):
         # English 2 Chinese
         txt = translator.translate(txt,src='en',dest='zh-cn').text
     return txt
-'''
-def is_contains_chinese(strs):
-    for ch in strs:
-        if '\\u4e00' <= ch <= '\\u9fff':
-            return True
-    return False
-'''
 
 @app.route('/',methods=['POST'])
 def server():
