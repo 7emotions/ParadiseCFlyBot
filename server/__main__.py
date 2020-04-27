@@ -42,7 +42,8 @@ def search(kwd) :
     # base = 'https://baidu.com/s?wd='
     base = 'https://cn.bing.com/search?q='
     info('Searching '+ kwd)
-    return base + urlencode(kwd)
+    link = base + urlencode(kwd)
+    return shareLink(link, kwd + ' 的搜索结果', kwd + ' 在bing上的搜索结果')
 
 def translate(txt) :
     '''
@@ -69,12 +70,12 @@ def server() :
     data = request.get_data().decode('utf-8')
     data = loads(data)
     r_msg = data['raw_message']   # 消息体
-    type = data['message_type'] # 消息来源类型
+    c_type = data['message_type'] # 消息来源类型
     qid = data['user_id'] # qq号
     cmd = command(r_msg) # 命令请求
 
-    if r_msg and type == 'private' :
-        #      ^^^^^^^^^^^^^^^^ 调试期间先只用私聊
+    if r_msg and c_type == 'private' :
+        #        ^^^^^^^^^^^^^^^^^^^ 调试期间先只用私聊
 
         hr()
         info("Received data:\n" + str(data))
