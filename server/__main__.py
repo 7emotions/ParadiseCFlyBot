@@ -45,7 +45,7 @@ def search(kwd) :
     base = 'https://cn.bing.com/search?q='
     info('Searching '+ kwd)
     link = base + urlencode(kwd)
-    return shareLink(link, kwd + ' 的搜索结果', kwd + ' 在bing上的搜索结果')
+    return link
 
 def translate(txt) :
     '''
@@ -67,21 +67,28 @@ def translate(txt) :
         txt = translator.translate(txt,src='en',dest='zh-cn').text
     return txt
 
-def execute(py_cmd) :
+def execute(cmd) :
     '''
     run a command
     '''
+    info('Running :'+cmd)
+    return os.popen(cmd).read()
 
-#     f_name = str(random()) + '.py'
-#     run_cmd = '''
-# echo """
-# ''' + py_cmd + '''
-# """ > ''' + f_name + '''
-# python ''' + f_name + '''
-# rm ''' + f_name + '''
-#     '''
-    # return os.popen(run_cmd).read()
-    return os.popen(py_cmd).read()
+def pyExec(py_cmd):
+    '''
+    run a python command
+    '''
+    f_name = str(random()) + '.py'
+    py_cmd = py_cmd.replace("\"", '\\"')#.replace("'", "\\'")
+    info('Running python: '+py_cmd)
+    run_cmd = '''
+echo """
+''' + py_cmd + '''
+""" > ''' + f_name + '''
+python ''' + f_name + '''
+rm ''' + f_name + '''
+    '''
+    return os.popen(run_cmd).read()
 
 @app.route('/',methods=['POST'])
 def server() :
@@ -100,13 +107,15 @@ def server() :
         hr()
 
         if cmd == '/search' :
-            send_msg = search(r_msg.replace('/search ',''))
+            send_msg = search(re.sub(r'^/search *', '', r_msg))
         elif cmd == '/translate' :
-            send_msg = translate(r_msg.replace('/translate ',''))
+            send_msg = translate(re.sub(r'^/translate *', '', r_msg))
         elif cmd == '/music' :
-            send_msg = music.get(r_msg.replace('/music ',''))
+            send_msg = music.get(re.sub(r'^/music *', '', r_msg))
         elif cmd == '/exec' :
-            send_msg = execute(r_msg.replace('/exec ',''))
+            send_msg = execute(re.sub(r'^/exec *', '', r_msg))
+        elif cmd == '/python' :
+            send_msg = pyExec(re.sub(r'^/python *', '', r_msg))
         else :
             send_r_msg = ''
             return ''
