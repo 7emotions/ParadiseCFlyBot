@@ -2,7 +2,7 @@
 # -*- coding:utf8 -*-
 import requests
 from utilities import *
-info("Music module loaded")
+info("[Music] module loaded")
 
 def search(kwd) :
     '''
