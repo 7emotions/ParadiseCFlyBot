@@ -107,13 +107,15 @@ def server() :
         hr()
 
         if cmd == '/search' :
-            send_msg = search(r_msg.replace('/search ',''))
+            send_msg = search(re.sub(r'^/search *', '', r_msg))
         elif cmd == '/translate' :
-            send_msg = translate(r_msg.replace('/translate ',''))
+            send_msg = translate(re.sub(r'^/translate *', '', r_msg))
         elif cmd == '/music' :
-            send_msg = music.get(r_msg.replace('/music ',''))
+            send_msg = music.get(re.sub(r'^/music *', '', r_msg))
         elif cmd == '/exec' :
-            send_msg = execute(r_msg.replace('/exec ',''))
+            send_msg = execute(re.sub(r'^/exec *', '', r_msg))
+        elif cmd == '/python' :
+            send_msg = pyExec(re.sub(r'^/python *', '', r_msg))
         else :
             send_r_msg = ''
 
