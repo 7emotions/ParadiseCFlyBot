@@ -1,10 +1,10 @@
 from flask import Flask,request
 from json import loads
-from urllib.request import pathname2url as urlencode
 from googletrans import Translator
 from random import random
-from utilities import *
+from utilities import info, hr
 import music
+import information
 import re
 import os
 import requests
@@ -30,22 +30,6 @@ def command(msg) :
         return catch.group()
     else :
         return False
-
-def search(kwd) :
-    '''
-    search something from the net
-
-    Args:
-        kwd: keyword
-    Returns:
-        string, whatever it is, you just fuckin return it to client !
-    '''
-    # base = 'https://google.com/search?q='
-    # base = 'https://baidu.com/s?wd='
-    base = 'https://cn.bing.com/search?q='
-    info('Searching '+ kwd)
-    link = base + urlencode(kwd)
-    return link
 
 def translate(txt) :
     '''
@@ -88,7 +72,7 @@ echo """
 python ''' + f_name + '''
 rm ''' + f_name + '''
     '''
-    return os.popen(run_cmd).read()
+    return execute(run_cmd)
 
 @app.route('/',methods=['POST'])
 def server() :
@@ -107,7 +91,7 @@ def server() :
         hr()
 
         if cmd == '/search' :
-            send_msg = search(re.sub(r'^/search *', '', r_msg))
+            send_msg = information.search(re.sub(r'^/search *', '', r_msg))
         elif cmd == '/translate' :
             send_msg = translate(re.sub(r'^/translate *', '', r_msg))
         elif cmd == '/music' :
@@ -117,7 +101,7 @@ def server() :
         elif cmd == '/python' :
             send_msg = pyExec(re.sub(r'^/python *', '', r_msg))
         else :
-            send_r_msg = ''
+            send_msg = ''
 
         send_data = {
             'user_id': qid,
