@@ -1,4 +1,5 @@
 from flask import Flask,request
+from base64 import b64encode
 from json import loads
 from googletrans import Translator
 from random import random
@@ -31,8 +32,9 @@ def command(msg) :
             translate
     '''
 
-    catch = re.match(r'\/\w+', msg).group()
+    catch = re.match(r'\/\w+', msg)
     if catch :
+        catch = catch.group()
         info('Catched command: ' + catch)
         if catch in cmds :
             return catch
@@ -99,7 +101,9 @@ def server() :
         hr()
 
         if cmd == '/search' :
-            send_msg = information.search(re.sub(r'^/search *', '', r_msg))
+            search_result = information.search(re.sub(r'^/search *', '', r_msg))
+            send_msg = search_result[0]
+            send('[CQ:image,file='+search_result[1]+']', qid)
         elif cmd == '/translate' :
             send_msg = translate(re.sub(r'^/translate *', '', r_msg))
         elif cmd == '/music' :

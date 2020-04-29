@@ -19,11 +19,11 @@ def send(send_msg, qid) :
         'message': send_msg, # 这里不要用str(), 分享音乐需要
         'auto_escape': False
     }
+    hr()
+    info("Sending data:\n" + str(send_data))
+    hr()
     status = requests.post(api_url,data=send_data).json()['status']
     if status != 'ok' :
         return False
-    hr()
-    info("Sended data:\n" + str(send_data))
-    hr()
     info("Send status: " + status)
     return True
