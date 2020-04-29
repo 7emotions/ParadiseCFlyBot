@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 # -*- coding:utf8 -*-
-from urllib.request import pathname2url as urlencode
-from random import choice
 import wikipedia as wk
+from urllib.request import pathname2url as urlencode
+from requests import get
+from random import choice
 from utilities import *
 info('[Information] module loaded')
 
@@ -15,20 +16,11 @@ def wikipedia(kwd, lang = 'zh') :
     '''
     try :
         wk.set_lang(lang)
-        # result = wk.page(kwd)
-        # 这里只加载summary以提高响应速度
-        summary = wk.summary(kwd)
+        result = wk.page(kwd)
         hr()
-        info(str({
-            'summary' : summary,
-            'url' : base + kwd
-        }))
+        info(str(result))
         hr()
-        # return result
-        return {
-            'summary' : summary,
-            'url' : base + kwd
-        }
+        return result
     except :
         return False
 
@@ -38,8 +30,9 @@ def search(kwd = '') :
         kwd = choice(iJustWantUtoStudy)
     wk_page = wikipedia(kwd)
     if (wk_page) :
-        return ("在 Wikipedia 上找到如下内容:\n" +
-            wk_page['url'] + "\n\n" +
-            wk_page['summary'])
+        return [
+            '在 Wikipedia 上找到如下信息：\n' + wk_page.url + '\n\n' + wk_page.summary,
+            wk_page.images[0]
+        ]
     else :
         return search_url
