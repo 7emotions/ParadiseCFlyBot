@@ -2,14 +2,21 @@ from flask import Flask,request
 from json import loads
 from googletrans import Translator
 from random import random
-from utilities import info, hr
+from utilities import *
 import music
 import information
 import re
 import os
-import requests
 
 app = Flask(__name__)
+
+cmds = {
+    '/search' : '搜索中 ...',
+    '/translate' : '翻译中 ...',
+    '/music' : '音乐加载中 ...',
+    '/exec' : '',
+    '/python' : ''
+}
 
 def command(msg) :
     '''
@@ -24,12 +31,12 @@ def command(msg) :
             translate
     '''
 
-    catch = re.match(r'\/\w+', msg)
+    catch = re.match(r'\/\w+', msg).group()
     if catch :
-        info('Catched command: ' + catch.group())
-        return catch.group()
-    else :
-        return False
+        info('Catched command: ' + catch)
+        if catch in cmds :
+            return catch
+    return False
 
 def translate(txt) :
     '''
@@ -62,9 +69,9 @@ def pyExec(py_cmd):
     '''
     run a python command
     '''
+    info('Running python: '+py_cmd)
     f_name = str(random()) + '.py'
     py_cmd = py_cmd.replace("\"", '\\"')#.replace("'", "\\'")
-    info('Running python: '+py_cmd)
     run_cmd = '''
 echo """
 ''' + py_cmd + '''
@@ -83,9 +90,10 @@ def server() :
     qid = data['user_id'] # qq号
     cmd = command(r_msg) # 命令请求
 
-    if r_msg and c_type == 'private' :
+    if r_msg and c_type == 'private' and cmd :
         #        ^^^^^^^^^^^^^^^^^^^ 调试期间先只用私聊
-
+        if cmds[cmd] != '' :
+            send(cmds[cmd], qid)
         hr()
         info("Received data:\n" + str(data))
         hr()
@@ -103,19 +111,7 @@ def server() :
         else :
             send_msg = ''
 
-        send_data = {
-            'user_id': qid,
-            'message': send_msg, # 这里不要用str(), 分享音乐需要
-            'auto_escape': False
-        }
-
-        api_url = 'http://127.0.0.1:5700/send_private_msg'
-        status = requests.post(api_url,data=send_data)
-
-        hr()
-        info("Sended data:\n" + str(send_data))
-        hr()
-        info("Send status: " + status.text)
+        send(send_msg, qid)
     return ''
 
 if __name__ == '__main__':
