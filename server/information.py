@@ -18,6 +18,12 @@ def wikipedia(kwd, lang = 'zh') :
         # result = wk.page(kwd)
         # 这里只加载summary以提高响应速度
         summary = wk.summary(kwd)
+        hr()
+        info(str({
+            'summary' : summary,
+            'url' : base + kwd
+        }))
+        hr()
         # return result
         return {
             'summary' : summary,
@@ -33,7 +39,7 @@ def search(kwd = '') :
     wk_page = wikipedia(kwd)
     if (wk_page) :
         return ("在 Wikipedia 上找到如下内容:\n" +
-            wk_page.url + "\n" +
-            wk_page.summary)
+            wk_page['url'] + "\n\n" +
+            wk_page['summary'])
     else :
         return search_url
