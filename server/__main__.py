@@ -29,7 +29,6 @@ def command(msg) :
             search
             translate
     '''
-
     catch = re.match(r'\/\w+', msg)
     if catch :
         catch = catch.group()
@@ -37,7 +36,6 @@ def command(msg) :
         if catch in cmds :
             return catch
     return False
-
 
 @app.route('/',methods=['POST'])
 def server() :
