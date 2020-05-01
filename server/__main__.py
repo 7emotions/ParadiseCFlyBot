@@ -115,6 +115,8 @@ def server() :
         elif cmd == '/music' :
             send_msg = music.get(re.sub(r'^/music *', '', r_msg))
         elif cmd == '/exec' :
+            if c_type == 'group' and not data['sender']['role'] == 'admin':
+                return ''
             send_msg = execute(re.sub(r'^/exec *', '', r_msg))
         elif cmd == '/python' :
             send_msg = pyExec(re.sub(r'^/python *', '', r_msg))
@@ -126,3 +128,4 @@ def server() :
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1')
+
