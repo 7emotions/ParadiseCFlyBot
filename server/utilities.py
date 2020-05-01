@@ -2,21 +2,27 @@
 # -*- coding:utf8 -*-
 import requests
 
-api_url = 'http://127.0.0.1:5700/send_private_msg'
+api_url = 'http://127.0.0.1:5700/send_msg'
 bing_logo = 'https://fitsmallbusiness.com/wp-content/uploads/2019/03/Bing_logo2.png'
 
 def info(msg, sign = '*') :
-	print('\033[32m['+sign+']\033[0m ' + msg);
-	return 0
+    # Windows 的终端好像不支持颜色输出 T_T
+    # print('\033[32m['+sign+']\033[0m ' + msg);
+    print('['+sign+'] ' + msg);
+    return 0
 
 def hr(n = 20) :
-	print('\033[35m'+'='*n+'\033[0m ')
-	return 0
+    # print('\033[35m'+'='*n+'\033[0m ')
+    print('='*n)
+    return 0
 
-def send(send_msg, qid) :
+def send(send_msg, id, type = "private") :
     send_data = {
-        'user_id': qid,
-        'message': send_msg, # 这里不要用str(), 分享音乐需要
+        'user_id': id, # qq号， 私聊时用
+        'group_id': id,# 群组号
+        'discuss_id': id,# 讨论组号
+        'message_type': type,#究竟是发消息给谁是由这个消息的来源类型决定的
+        'message': str(send_msg),
         'auto_escape': False
     }
     hr()
