@@ -1,7 +1,8 @@
 from flask import Flask,request
 from base64 import b64encode
 from json import loads
-from googletrans import Translator
+# from googletrans import Translator
+from youdao_tr import youdao_tr
 from random import random
 from utilities import *
 import music
@@ -50,14 +51,15 @@ def translate(txt) :
         String, result
     '''
     info('Translating: ' + txt)
-    translator = Translator(service_urls=['translate.google.cn'])
-    Chinese = re.compile('[\u4e00-\u9fa5]')
-    if Chinese.search(txt) :
-        info('Translate Chinese to English')
-        txt = translator.translate(txt,src='zh-cn',dest='en').text
-    else :
-        info('Translate English to Chinese')
-        txt = translator.translate(txt,src='en',dest='zh-cn').text
+    # translator = Translator(service_urls=['translate.google.cn'])
+    # Chinese = re.compile('[\u4e00-\u9fa5]')
+    # if Chinese.search(txt) :
+    #     info('Translate Chinese to English')
+    #     txt = translator.translate(txt,src='zh-cn',dest='en').text
+    # else :
+    #     info('Translate English to Chinese')
+    #     txt = translator.translate(txt,src='en',dest='zh-cn').text
+    txt = youdao_tr(txt)
     return txt
 
 def execute(cmd) :
