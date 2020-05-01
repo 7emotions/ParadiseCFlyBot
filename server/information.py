@@ -5,7 +5,7 @@ from urllib.request import pathname2url as urlencode
 from requests import get
 from random import choice
 from utilities import *
-from googletrans import Translator
+from youdao_tr import youdao_tr
 info('[Information] module loaded')
 
 iJustWantUtoStudy = ['正弦定理','余弦定理','pornhub']
@@ -48,14 +48,15 @@ def translate(txt) :
         String, result
     '''
     info('Translating: ' + txt)
-    translator = Translator(service_urls=['translate.google.cn'])
-    Chinese = re.compile('[\u4e00-\u9fa5]')
-    if Chinese.search(txt) :
-        info('Translate Chinese to English')
-        txt = translator.translate(txt,src='zh-cn',dest='en').text
-    else :
-        info('Translate English to Chinese')
-        txt = translator.translate(txt,src='en',dest='zh-cn').text
+    # translator = Translator(service_urls=['translate.google.cn'])
+    # Chinese = re.compile('[\u4e00-\u9fa5]')
+    # if Chinese.search(txt) :
+    #     info('Translate Chinese to English')
+    #     txt = translator.translate(txt,src='zh-cn',dest='en').text
+    # else :
+    #     info('Translate English to Chinese')
+    #     txt = translator.translate(txt,src='en',dest='zh-cn').text
+    txt = youdao_tr(txt)
     return txt
 
 def pronounce(word,type=0):
@@ -69,4 +70,4 @@ def pronounce(word,type=0):
     '''
     info('Geting pronunciation:'+word)
     api_url = 'http://dict.youdao.com/dictvoice?type='+str(type)+'&audio='
-    return api_url + word
+    return api_url + urlencode(word)
