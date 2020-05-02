@@ -1,4 +1,4 @@
-Flask==1.1.2
 wikipedia==1.4.0
-googletrans==2.4.0
+Flask==1.1.2
 requests==2.22.0
+youdao_tr_free==0.0.7

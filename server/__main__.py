@@ -1,13 +1,10 @@
 from flask import Flask,request
-from base64 import b64encode
 from json import loads
-from googletrans import Translator
-from random import random
 from utilities import *
+import information 
+import programrunning
 import music
-import information
 import re
-import os
 
 app = Flask(__name__)
 
@@ -16,7 +13,8 @@ cmds = {
     '/translate' : '翻译中 ...',
     '/music' : '音乐加载中 ...',
     '/exec' : '',
-    '/python' : ''
+    '/python' : '',
+    '/pronounce' : '查找中...'
 }
 
 def command(msg) :
@@ -31,7 +29,6 @@ def command(msg) :
             search
             translate
     '''
-
     catch = re.match(r'\/\w+', msg)
     if catch :
         catch = catch.group()
@@ -40,53 +37,11 @@ def command(msg) :
             return catch
     return False
 
-def translate(txt) :
-    '''
-    translate btween Chinese and English
-
-    Args:
-        txt: text to translate
-    Returns:
-        String, result
-    '''
-    info('Translating: ' + txt)
-    translator = Translator(service_urls=['translate.google.cn'])
-    Chinese = re.compile('[\u4e00-\u9fa5]')
-    if Chinese.search(txt) :
-        info('Translate Chinese to English')
-        txt = translator.translate(txt,src='zh-cn',dest='en').text
-    else :
-        info('Translate English to Chinese')
-        txt = translator.translate(txt,src='en',dest='zh-cn').text
-    return txt
-
-def execute(cmd) :
-    '''
-    run a command
-    '''
-    info('Running :'+cmd)
-    return os.popen(cmd).read()
-
-def pyExec(py_cmd):
-    '''
-    run a python command
-    '''
-    info('Running python: '+py_cmd)
-    f_name = str(random()) + '.py'
-    py_cmd = py_cmd.replace("\"", '\\"')#.replace("'", "\\'")
-    run_cmd = '''
-echo """
-''' + py_cmd + '''
-""" > ''' + f_name + '''
-python ''' + f_name + '''
-rm ''' + f_name + '''
-    '''
-    return execute(run_cmd)
-
 @app.route('/',methods=['POST'])
 def server() :
     data = request.get_data().decode('utf-8')
     data = loads(data)
+    
     r_msg = data['raw_message']   # 消息体
     c_type = data['message_type'] # 消息来源类型
 
@@ -111,13 +66,15 @@ def server() :
             send_msg = search_result[0]
             send('[CQ:image,file='+search_result[1]+']', id, c_type)
         elif cmd == '/translate' :
-            send_msg = translate(re.sub(r'^/translate *', '', r_msg))
+            send_msg = information.translate(re.sub(r'^/translate *', '', r_msg))
         elif cmd == '/music' :
             send_msg = music.get(re.sub(r'^/music *', '', r_msg))
-        elif cmd == '/exec' :
-            send_msg = execute(re.sub(r'^/exec *', '', r_msg))
+        elif cmd == '/exec' and data['user_id'] == 3393103594 :
+            send_msg = programrunning.execute(re.sub(r'^/exec *', '', r_msg))
         elif cmd == '/python' :
-            send_msg = pyExec(re.sub(r'^/python *', '', r_msg))
+            send_msg = programrunning.pyExec(re.sub(r'^/python *', '', r_msg))
+        elif cmd == '/pronounce':
+            send_msg = information.pronounce(re.sub(r'^/pronounce *','',r_msg))
         else :
             send_msg = ''
 
@@ -126,3 +83,4 @@ def server() :
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1')
+
