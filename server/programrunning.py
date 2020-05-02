@@ -3,7 +3,7 @@ from random import random
 import os
 info("[ProgramRunning] module loaded")
 
-'''
+"""
 cmd_dic={}
 n=0
 def AddCmd(cmd):
@@ -62,7 +62,7 @@ def RunCmd():
     os.system('del '+f_name)
     os.system('del '+f_name+'.txt')
     return data
-'''
+"""
 
 class ProgramRunning(object):
     '''
