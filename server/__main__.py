@@ -72,7 +72,7 @@ def server() :
         elif cmd == '/exec' and data['user_id'] == 3393103594 :
             send_msg = execute(re.sub(r'^/exec *', '', r_msg))
         elif cmd == '/python' :
-            send_msg = programrunning.pyExec(re.sub(r'^/python *', '', r_msg))
+            cmd = command(re.sub(r'^/python *', '', r_msg))
         elif cmd == '/pronounce':
             send_msg = information.pronounce(re.sub(r'^/pronounce *','',r_msg))
         else :
