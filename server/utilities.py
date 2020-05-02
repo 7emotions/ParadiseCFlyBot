@@ -7,8 +7,8 @@ bing_logo = 'https://fitsmallbusiness.com/wp-content/uploads/2019/03/Bing_logo2.
 
 def info(msg, sign = '*') :
     # Windows 的终端好像不支持颜色输出 T_T
-    # print('\033[32m['+sign+']\033[0m ' + msg);
-    print('['+sign+'] ' + msg);
+    # print('\033[32m['+sign+']\033[0m ' + msg)
+    print('['+sign+'] ' + str(msg))
     return 0
 
 def hr(n = 20) :
@@ -33,3 +33,10 @@ def send(send_msg, id, type = "private") :
         return False
     info("Send status: " + status)
     return True
+
+def audio2silk(file) :
+    try :
+        audio = open(file, 'r')
+    except :
+        info('ERROR : Unable to open audio file "' + file + '"')
+        return False
