@@ -7,8 +7,8 @@ bing_logo = 'https://fitsmallbusiness.com/wp-content/uploads/2019/03/Bing_logo2.
 
 def info(msg, sign = '*') :
     # Windows 的终端好像不支持颜色输出 T_T
-    # print('\033[32m['+sign+']\033[0m ' + msg);
-    print('['+sign+'] ' + msg);
+    # print('\033[32m['+sign+']\033[0m ' + msg)
+    print('['+sign+'] ' + str(msg))
     return 0
 
 def hr(n = 20) :

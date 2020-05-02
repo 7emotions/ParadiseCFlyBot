@@ -1,7 +1,7 @@
 from flask import Flask,request
 from json import loads
 from utilities import *
-import information 
+import information
 import programrunning
 import music
 import re
@@ -41,7 +41,7 @@ def command(msg) :
 def server() :
     data = request.get_data().decode('utf-8')
     data = loads(data)
-    
+
     r_msg = data['raw_message']   # 消息体
     c_type = data['message_type'] # 消息来源类型
 
@@ -83,4 +83,3 @@ def server() :
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1')
-
