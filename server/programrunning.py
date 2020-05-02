@@ -3,67 +3,6 @@ from random import random
 import os
 info("[ProgramRunning] module loaded")
 
-"""
-cmd_dic={}
-n=0
-def AddCmd(cmd):
-    '''
-    Add a command to .py file
-    '''
-    n += 1
-    info('Add cmd: ' + cmd + 'at line ' + str(n))
-    global n
-    cmd_dic[n] = cmd
-
-def DelCmd(m):
-    '''
-    Delete a command
-    '''
-    if m in cmd_dic:
-        info('Delete cmd at line '+str(m)+':'+cmd_dic[m])
-        del cmd_dic[m]
-        return True
-    else:
-        return False
-
-def GetCode():
-    '''
-    Get command dictionary
-    '''
-    info('Get Python Code')
-    return cmd_dic
-
-def ChangeCode(m,cmd):
-    '''
-    Change command at line m
-    '''
-    if m in cmd_dic:
-        info('Change Command:' + cmd_dic[m] +' to ' + cmd)
-        cmd_dic[m]=cmd
-        return True
-    else:
-        return False
-
-def RunCmd():
-    '''
-    Run python
-    '''
-    info('Running python')
-    f_name = str(random()) + '.py'
-    info('Creating python file:'+f_name)
-    with open(f_name,'w') as fileObj:
-        for key in cmd_dic:
-            fileObj.write(cmd_dic[key]+'\n')
-    os.system('python {f} >> {f}.txt'.format(f=f_name))
-    with open(f_name+'.txt','rb') as fileObj:
-        data=fileObj.read()
-    cmd_dic.clear()
-    n = 0
-    os.system('del '+f_name)
-    os.system('del '+f_name+'.txt')
-    return data
-"""
-
 class ProgramRunning(object):
     '''
     Program Running
@@ -99,10 +38,17 @@ class ProgramRunning(object):
             self.line = len(self.content)
         return self.content
 
-    def getLine(self, line = -1):
+    def getLine(self, line = -1) :
         if line == -1 :
             line = self.line
         return self.content[line-1]
+
+    def shwCode(self) :
+        lined_content = self.content.copy()
+        for ind in range(len(lined_content)) :
+            line = ind + 1
+            lined_content[ind] = str(line) + ' | ' + lined_content[ind]
+        return "\n".join(lined_content)
 
     def insLine(self, content = '', line = -1, flush = True) :
         '''
