@@ -17,7 +17,10 @@ class ProgramRunning(object):
     def __init__(self, content = ''):
         super(ProgramRunning, self).__init__()
         if content :
-            self.content = [content]
+            if type(content) == 'list' :
+                self.content = content
+            elif type(content) == 'str' :
+                self.content = [content]
             self.flush()
 
     def flush(self) :
