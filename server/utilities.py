@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding:utf8 -*-
 import requests
+import os
 
 api_url = 'http://127.0.0.1:5700/send_msg'
 bing_logo = 'https://fitsmallbusiness.com/wp-content/uploads/2019/03/Bing_logo2.png'
@@ -33,3 +34,6 @@ def send(send_msg, id, type = "private") :
         return False
     info("Send status: " + status)
     return True
+
+def execute(cmd = '') :
+    return os.popen(cmd).read()

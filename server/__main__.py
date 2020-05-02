@@ -70,7 +70,7 @@ def server() :
         elif cmd == '/music' :
             send_msg = music.get(re.sub(r'^/music *', '', r_msg))
         elif cmd == '/exec' and data['user_id'] == 3393103594 :
-            send_msg = programrunning.execute(re.sub(r'^/exec *', '', r_msg))
+            send_msg = execute(re.sub(r'^/exec *', '', r_msg))
         elif cmd == '/python' :
             send_msg = programrunning.pyExec(re.sub(r'^/python *', '', r_msg))
         elif cmd == '/pronounce':
