@@ -151,3 +151,11 @@ class ProgramRunning(object):
         '''
         TODO : run code
         '''
+        f_name = str(random()) + '.py'
+        with open(f_name,'w+') as fileObj:
+            fileObj.write("\n".join(self.content))
+        data = os.popen('python '+ f_name).read()
+        self.content.clear()
+        self.flush
+        os.remove(f_name)
+        return data
