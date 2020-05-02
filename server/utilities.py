@@ -33,10 +33,3 @@ def send(send_msg, id, type = "private") :
         return False
     info("Send status: " + status)
     return True
-
-def audio2silk(file) :
-    try :
-        audio = open(file, 'r')
-    except :
-        info('ERROR : Unable to open audio file "' + file + '"')
-        return False
