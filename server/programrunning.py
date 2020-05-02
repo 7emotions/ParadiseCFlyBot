@@ -3,25 +3,61 @@ from random import random
 import os
 info("[ProgramRunning] module loaded")
 
-def execute(cmd) :
+cmd_dic={}
+n=0
+def AddCmd(cmd):
     '''
-    run a command
+    Add a command to .py file
     '''
-    info('Running :'+cmd)
-    return os.popen(cmd).read()
+    info('Add cmd: ' + cmd)
+    global n
+    cmd_dic[n]=cmd
+    n+=1
 
-def pyExec(py_cmd):
+def DelCmd(m):
     '''
-    run a python command
+    Delete a command
     '''
-    info('Running python: '+py_cmd)
+    if m in cmd_dic:
+        info('Delete cmd at line '+str(m)+':'+cmd_dic[m])
+        del cmd_dic[m]
+        return True
+    else:
+        return False
+
+def GetCode():
+    '''
+    Get command dictionary
+    '''
+    info('Get Python Code')
+    return cmd_dic
+
+def ChangeCode(m,cmd):
+    '''
+    Change command at line m
+    '''
+    if m in cmd_dic:
+        info('Change Command:' + cmd_dic[m] +' to ' + cmd)
+        cmd_dic[m]=cmd
+        return True
+    else:
+        return False
+
+def RunCmd():
+    '''
+    Run python
+    '''
+    info('Running python')
     f_name = str(random()) + '.py'
-    py_cmd = py_cmd.replace("\"", '\\"')#.replace("'", "\\'")
-    run_cmd = '''
-echo """
-''' + py_cmd + '''
-""" > ''' + f_name + '''
-python ''' + f_name + '''
-rm ''' + f_name + '''
-    '''
-    return execute(run_cmd)
+    info('Creating python file:'+f_name)
+    with open(f_name,'w') as fileObj:
+        for key in cmd_dic:
+            fileObj.write(cmd_dic[key]+'\n')
+    os.system('python {f} >> {f}.txt'.format(f=f_name))
+    with open(f_name+'.txt','rb') as fileObj:
+        data=fileObj.read()
+    cmd_dic.clear()
+    n=0
+    os.system('del '+f_name)
+    os.system('del '+f_name+'.txt')
+    return data
