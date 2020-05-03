@@ -13,8 +13,11 @@ elif [ "$action" = 'push' ]; then
 	sed -i "s/$r_host/$t_host/g" server/*.py
 	pipreqs --force
 	git diff
+	git status
 	echo "\n\nCode will commit after 3s..."
-	sleep 3
+	sed -i "s/$t_host/$r_host/g" server/*.py
+	sleep 3s
+	sed -i "s/$r_host/$t_host/g" server/*.py
 	git add *
 	git commit -m $msg
 	git push

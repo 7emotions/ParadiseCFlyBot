@@ -15,7 +15,7 @@ def _(qid, msg) :
     if cmd == '/flush' :
         program.flush()
     elif cmd == '/get' :
-        return program.getLine()
+        return program.getLine(data['line'])
     elif cmd == '/ist' :
         program.insLine(data['content'], data['line'])
     elif cmd == '/del' :
@@ -24,6 +24,10 @@ def _(qid, msg) :
         program.edtLine(data['line'], data['content'])
     elif cmd == '/run' :
         return program.run()
+    elif cmd == '/fetch' :
+        return program.fetch()
+    elif cmd == '/clear' :
+        program.clear()
     return program.shwCode()
     program.store()
 
@@ -34,7 +38,7 @@ def analyze(msg) :
     Returns:
         {dict} : {'line': {int}|False, 'content': {string}}
     '''
-    line = re.search(r'(?<=\/ins )[0-9]+(?= .*)', msg)
+    line = re.search(r'(?<=\/\w{3,3} )[0-9]+(?= .*)?', msg)
     if not line :
         line = False
         content = re.sub(r'^\/\w+ ', '', msg)
@@ -59,7 +63,7 @@ class ProgramRunning(object):
 
     def __init__(self, fname = 'null', content = ''):
         super(ProgramRunning, self).__init__()
-        self.fname = fname
+        self.fname = 'db/' + fname + '.json'
         if content :
             if type(content) == str :
                 self.content = [content]
@@ -125,8 +129,10 @@ class ProgramRunning(object):
             {bool|list} : delete status
 
         '''
-        if not line or line > self.line :
+        if line > self.line :
             return False
+        elif not line :
+            line = self.line
 
         # contents that before the line
         before = self.content[0: line]
@@ -150,27 +156,34 @@ class ProgramRunning(object):
         '''
         run code
         '''
-        f_name = str(random()) + '.py'
+        f_name = self.fname + '.py'
         with open(f_name,'w+') as fileObj:
             fileObj.write("\n".join(self.content))
         data = execute('python '+ f_name)
-        self.content.clear()
+        if os.path.exists(f_name) :
+            os.remove(f_name)
         self.flush()
-        os.remove(f_name)
         return data
 
     def store(self) :
         '''
         storing data
         '''
-        f = open(self.fname + '.json', 'w+')
+        f = open(self.fname, 'w+')
         f.write(json.dumps(self.content))
         f.close()
 
     def fetch(self) :
-        fname = self.fname + '.json'
+        fname = self.fname
         if os.path.exists(fname) :
             f = open(fname, 'r')
             return json.loads(f.read())
         else :
             return False
+
+    def clear(self) :
+        fname = self.fname + '.json'
+        self.content = []
+        if os.path.exists(fname) :
+            os.remove(fname)
+        return self.flush()
