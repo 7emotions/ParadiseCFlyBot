@@ -18,24 +18,21 @@ class PyExec(object):
             '/l':'Clear'
         }
 
-    def exe(self,msg) :
-        catch = re.match(r'\/\w+', msg)
-        if catch :
-            catch = catch.group()
-            info('Catched cmd: ' + catch)
-            if catch in self.pcmds :
-                cmd = re.sub(r'^'+ catch +r' *', '', msg)
-                if catch == '/c':
-                    pass
-                elif catch == '/a' or catch == '/d':
-                    cmd = 'self.' + self.pcmds[catch] + '(r"' + re.sub('\"', '\\"', cmd) + '")'
-                else:
-                    cmd = 'self.' + self.pcmds[catch] + '(' + str(re.sub('\"', '\\"', cmd)) + ')'
-                data = eval(cmd)
-                print(self.cmd_list)
-                print(data)
-                self.save()
-                return data
+    def exe(self, msg) :
+        catch = catch.command(msg)
+        if catch in self.pcmds :
+            cmd = re.sub(r'^\w *', '', msg)
+            if catch == '/c':
+                pass
+            elif catch == '/a' or catch == '/d':
+                cmd = 'self.' + self.pcmds[catch] + '(r"' + re.sub('\"', '\\"', cmd) + '")'
+            else:
+                cmd = 'self.' + self.pcmds[catch] + '(' + str(re.sub('\"', '\\"', cmd)) + ')'
+            data = eval(cmd)
+            print(self.cmd_list)
+            print(data)
+            self.save()
+            return data
         else:
             return ''
 
