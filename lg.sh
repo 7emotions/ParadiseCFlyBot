@@ -18,8 +18,7 @@ elif [ "$action" = 'push' ]; then
 	sed -i "s/$t_host/$r_host/g" server/*.py
 	sleep 3s
 	sed -i "s/$r_host/$t_host/g" server/*.py
-	git add *
-	git commit -m $msg
+	git commit -am $msg
 	git push
 	echo "\n\nCommit success !"
 	sed -i "s/$t_host/$r_host/g" server/*.py

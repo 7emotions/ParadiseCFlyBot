@@ -63,7 +63,7 @@ class ProgramRunning(object):
 
     def __init__(self, fname = 'null', content = ''):
         super(ProgramRunning, self).__init__()
-        self.fname = 'db/' + fname + '.json'
+        self.fname = 'server/db/' + fname + '.json'
         if content :
             if type(content) == str :
                 self.content = [content]
