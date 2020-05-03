@@ -44,14 +44,13 @@ def server() :
 
     r_msg = data['raw_message']   # 消息体
     c_type = data['message_type'] # 消息来源类型
-    qid = data['user_id']
 
     if 'discuss_id' in data :
         id = data['discuss_id']
     elif 'group_id' in data :
         id = data['group_id']
     else :
-        id = qid
+        id = data['user_id']
 
     cmd = command(r_msg) # 命令请求
 
@@ -70,11 +69,10 @@ def server() :
             send_msg = information.translate(re.sub(r'^/translate *', '', r_msg))
         elif cmd == '/music' :
             send_msg = music.get(re.sub(r'^/music *', '', r_msg))
-        elif cmd == '/exec' :
-            send_msg=''#TODO: Exec
+        elif cmd == '/exec' and data['user_id'] == 3393103594 :
+            send_msg = execute(re.sub(r'^/exec *', '', r_msg))
         elif cmd == '/python' :
-            runner = programrunning.PyExec(qid)
-            send_msg = runner.exe(re.sub(r'^/python *', '', r_msg))
+            send_msg = programrunning.pyExec(re.sub(r'^/python *', '', r_msg))
         elif cmd == '/pronounce':
             send_msg = information.pronounce(re.sub(r'^/pronounce *','',r_msg))
         else :
