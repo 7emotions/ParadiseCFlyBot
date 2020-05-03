@@ -1,7 +1,47 @@
+#!/usr/bin/python
+# -*- coding:utf8 -*-
 from utilities import *
 from random import random
+import re
 import os
+import json
 info("[ProgramRunning] module loaded")
+
+def _(qid, msg) :
+    qid = str(qid)
+    program = ProgramRunning(qid)
+    cmd = command(msg)
+    data = analyze(msg)
+    if cmd == '/flush' :
+        program.flush()
+    elif cmd == '/get' :
+        return program.getLine()
+    elif cmd == '/ins' :
+        program.insLine(data['content'], data['line'])
+    elif cmd == '/del' :
+        program.delLine(data['line'])
+    elif cmd == '/edt' :
+        program.edtLine(data['line'], data['content'])
+    elif cmd == '/run' :
+        return program.run()
+    return program.shwCode()
+    program.store()
+
+def analyze(msg) :
+    '''
+    analyzing command
+
+    Returns:
+        {dict} : {'line': {int}|False, 'content': {string}}
+    '''
+    line = re.search(r'(?<=\/ins )[0-9]+(?= .*)', msg)
+    if not line :
+        line = False
+        content = re.sub(r'^\/\w+ ', '', msg)
+    else :
+        line = int(line.group())
+        content = re.sub(r'^\/\w+ %s '%(line), '', msg)
+    return {'line': line, 'content': content}
 
 class ProgramRunning(object):
     '''
@@ -14,10 +54,21 @@ class ProgramRunning(object):
     # number of lines
     line = 0
 
-    def __init__(self, content = ''):
+    #file name
+    fname = 'null'
+
+    def __init__(self, fname = 'null', content = ''):
         super(ProgramRunning, self).__init__()
+        self.fname = fname
         if content :
-            self.content = [content]
+            if type(content) == str :
+                self.content = [content]
+            elif type(content) == list :
+                self.content = content
+        else :
+            old_data = self.fetch()
+            if old_data :
+                self.content = old_data
             self.flush()
 
     def flush(self) :
@@ -36,25 +87,27 @@ class ProgramRunning(object):
                 for x in range(len(con)) :
                     self.insLine(con[x], line + x, False)
             self.line = len(self.content)
+        self.store()
         return self.content
 
-    def getLine(self, line = -1) :
-        if line == -1 :
+    def getLine(self, line = False) :
+        if not line :
             line = self.line
         return self.content[line-1]
 
-    def shwCode(self) :
+    def shwCode(self, format = True) :
         lined_content = self.content.copy()
-        for ind in range(len(lined_content)) :
-            line = ind + 1
-            lined_content[ind] = str(line) + ' | ' + lined_content[ind]
+        if format :
+            for ind in range(len(lined_content)) :
+                line = ind + 1
+                lined_content[ind] = str(line) + ' | ' + lined_content[ind]
         return "\n".join(lined_content)
 
-    def insLine(self, content = '', line = -1, flush = True) :
+    def insLine(self, content = '', line = False, flush = True) :
         '''
         insert code at someline
         '''
-        if line == -1 :
+        if not line :
             line = self.line + 1
 
         self.content.insert(line - 1, content)
@@ -62,7 +115,7 @@ class ProgramRunning(object):
             self.flush()
         return self.content
 
-    def delLine(self, line = -1, flush = True) :
+    def delLine(self, line = False, flush = True) :
         '''
         Delete code at some line
 
@@ -72,7 +125,7 @@ class ProgramRunning(object):
             {bool|list} : delete status
 
         '''
-        if line > self.line or line == -1 :
+        if not line or line > self.line :
             return False
 
         # contents that before the line
@@ -95,13 +148,29 @@ class ProgramRunning(object):
 
     def run(self) :
         '''
-        TODO : run code
+        run code
         '''
         f_name = str(random()) + '.py'
         with open(f_name,'w+') as fileObj:
             fileObj.write("\n".join(self.content))
-        data = os.popen('python '+ f_name).read()
+        data = execute('python '+ f_name)
         self.content.clear()
-        self.flush
+        self.flush()
         os.remove(f_name)
         return data
+
+    def store(self) :
+        '''
+        storing data
+        '''
+        f = open(self.fname + '.json', 'w+')
+        f.write(json.dumps(self.content))
+        f.close()
+
+    def fetch(self) :
+        fname = self.fname + '.json'
+        if os.path.exists(fname) :
+            f = open(fname, 'r')
+            return json.loads(f.read())
+        else :
+            return False
