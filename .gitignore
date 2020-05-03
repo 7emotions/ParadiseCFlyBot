@@ -7,7 +7,8 @@ __pycache__/
 *.so
 
 # Qnurye edited
-g
+*.sh
+db/*
 
 # Distribution / packaging
 .Python

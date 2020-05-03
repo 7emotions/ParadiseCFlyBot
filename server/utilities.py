@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding:utf8 -*-
 import requests
+import re
 import os
 
 api_url = 'http://127.0.0.1:5700/send_msg'
@@ -16,6 +17,26 @@ def hr(n = 20) :
     # print('\033[35m'+'='*n+'\033[0m ')
     print('='*n)
     return 0
+
+def command(msg) :
+    '''
+    Fetch command from a raw message
+
+    Args:
+        msg: message
+    Returns:
+        String, command.
+        example:
+            search
+            translate
+    '''
+    catch = re.match(r'\/\w+', msg)
+    if catch :
+        catch = catch.group()
+        info('Catched command: ' + catch)
+        if catch in cmds :
+            return catch
+    return False
 
 def send(send_msg, id, type = "private") :
     send_data = {
@@ -37,3 +58,22 @@ def send(send_msg, id, type = "private") :
 
 def execute(cmd = '') :
     return os.popen(cmd).read()
+
+def command(msg) :
+    '''
+    Fetch command from a raw message
+
+    Args:
+        msg: message
+    Returns:
+        String, command.
+        example:
+            search
+            translate
+    '''
+    catch = re.match(r'\/\w+', msg)
+    if catch :
+        catch = catch.group()
+        info('Catched command: ' + catch)
+        return catch
+    return False
