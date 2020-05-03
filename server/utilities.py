@@ -3,7 +3,7 @@
 import requests
 import os
 
-api_url = 'http://127.0.0.1:5700/send_msg'
+api_url = 'http://172.17.0.1:5700/send_msg'
 bing_logo = 'https://fitsmallbusiness.com/wp-content/uploads/2019/03/Bing_logo2.png'
 
 def info(msg, sign = '*') :
