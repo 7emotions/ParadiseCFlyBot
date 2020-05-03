@@ -1,101 +1,107 @@
 from utilities import *
 from random import random
 import os
-import re
 info("[ProgramRunning] module loaded")
 
-class PyExec(object):
-    """run python"""
-    def __init__(self, qid):
-        self.f_name = str(qid)
-        self.cmd_list=[]        
-        self.pcmds={
-            '/a':'AddCmd',
-            '/d':'DelCmd',
-            '/v':'GetCode',
-            '/c':'ChangeCode',
-            '/r':'RunCmd',
-            '/l':'Clear'
-        }
+class ProgramRunning(object):
+    '''
+    Program Running
+    '''
 
-    def exe(self,msg) :
-        catch = re.match(r'\/\w+', msg)
-        if catch :
-            catch = catch.group()
-            info('Catched cmd: ' + catch)
-            if catch in self.pcmds :
-                cmd = re.sub(r'^'+ catch +r' *', '', msg)
-                if catch == '/c':
-                    pass 
-                elif catch == '/a' or catch == '/d':
-                    cmd = 'self.' + self.pcmds[catch] + '(r"' + re.sub('\"', '\\"', cmd) + '")'
-                else:
-                    cmd = 'self.' + self.pcmds[catch] + '(' + str(re.sub('\"', '\\"', cmd)) + ')'
-                data = eval(cmd)
-                print(self.cmd_list)
-                print(data)
-                self.save()
-                return data
-        else:
-            return ''
+    # file content
+    content = []
 
-    def save(self):
-        with open('./../db/'+self.f_name,'w') as fileObj:
-            for cmd in self.cmd_list:
-                print(cmd)
-                fileObj.write(cmd+'\n')
+    # number of lines
+    line = 0
 
-    def AddCmd(self, cmd):
-        '''
-        Add a command to .py file
-        '''
-        info('Add cmd: ' + cmd)
-        self.cmd_list.append(cmd)
+    def __init__(self, content = ''):
+        super(ProgramRunning, self).__init__()
+        if content :
+            self.content = [content]
+            self.flush()
 
-    def DelCmd(self, m):
+    def flush(self) :
         '''
-        Delete a command
+        Flush content
+
+        Returns:
+            {list} : content after flush
         '''
-        if m < len(self.cmd_list):
-            info('Delete cmd at line '+str(m)+':'+self.cmd_list[m])
-            self.cmd_list.pop(m)
-            return True
-        else:
+        self.line = len(self.content)
+        for ind in range(len(self.content)):
+            line = ind + 1
+            if "\n" in self.getLine(line) :
+                con = self.getLine(line).split("\n")
+                self.delLine(line, False)
+                for x in range(len(con)) :
+                    self.insLine(con[x], line + x, False)
+            self.line = len(self.content)
+        return self.content
+
+    def getLine(self, line = -1) :
+        if line == -1 :
+            line = self.line
+        return self.content[line-1]
+
+    def shwCode(self) :
+        lined_content = self.content.copy()
+        for ind in range(len(lined_content)) :
+            line = ind + 1
+            lined_content[ind] = str(line) + ' | ' + lined_content[ind]
+        return "\n".join(lined_content)
+
+    def insLine(self, content = '', line = -1, flush = True) :
+        '''
+        insert code at someline
+        '''
+        if line == -1 :
+            line = self.line + 1
+
+        self.content.insert(line - 1, content)
+        if flush :
+            self.flush()
+        return self.content
+
+    def delLine(self, line = -1, flush = True) :
+        '''
+        Delete code at some line
+
+        Args:
+            line {int} : line of command, if not given, the last line will be deleted
+        Returns:
+            {bool|list} : delete status
+
+        '''
+        if line > self.line or line == -1 :
             return False
 
-    def GetCode(self):
-        '''
-        Get command dictionary
-        '''
-        info('Get Python Code')
-        with open('./../db/'+self.f_name,'rb') as fileObj:
-            data=fileObj.read()
-        return data
+        # contents that before the line
+        before = self.content[0: line]
+        # contents that after the line
+        after = self.content[line: self.line]
+        before.pop()
+        self.content = before + after
+        if flush :
+            self.flush()
+        return self.content
 
-    def ChangeCode(self, m,cmd):
+    def edtLine(self, line, content = '') :
         '''
-        Change command at line m
+        edit the content of a line
         '''
-        if m <len(self.cmd_list):
-            info('Change Command:' + self.cmd_list[m] + ' line:'+str(m)+' to ' + cmd)
-            self.cmd_list.pop(m)
-            self.cmd_list.insert(m,cmd)
-            return True
-        else:
-            return False
+        self.delLine(line)
+        self.insLine(content, line)
+        return self.content
 
-    def RunCmd(self):
+    def run(self) :
         '''
-        Run python
+        TODO : run code
         '''
-        info('Running python')
-        info('Creating python file:'+self.f_name)
-        os.system('python {f} >> {f}.txt'.format(f='./../db/'+self.f_name))
-        with open('./../db/'+self.f_name+'.txt','rb') as fileObj:
-            data=fileObj.read()
+        f_name = str(random()) + '.py'
+        with open(f_name,'w+') as fileObj:
+            fileObj.write("\n".join(self.content))
+        data = os.popen('python '+ f_name).read()
+        self.content.clear()
+        self.flush
+        os.remove(f_name)
         return data
-    
-    def Clear(self):
-        self.cmd_list=[]
-        os.remove(self.f_name)
-        os.remove(self.f_name+'.txt')
