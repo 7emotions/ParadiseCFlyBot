@@ -13,7 +13,7 @@ cmds = {
     '/translate' : '翻译中 ...',
     '/music' : '音乐加载中 ...',
     '/exec' : '',
-    '/python' : '',
+    '/py' : '',
     '/pronounce' : '查找中...'
 }
 
@@ -51,8 +51,8 @@ def server() :
             send_msg = music.get(re.sub(r'^/music *', '', r_msg))
         elif cmd == '/exec' :
             send_msg = execute(re.sub(r'^/exec *', '', r_msg))
-        elif cmd == '/python' :
-            send_msg = programrunning._(qid, r_msg)
+        elif cmd == '/py' :
+            send_msg = programrunning._(qid, re.sub(r'^/py *', '', r_msg))
         elif cmd == '/pronounce':
             send_msg = information.pronounce(re.sub(r'^/pronounce *','',r_msg))
         else :

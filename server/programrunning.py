@@ -16,7 +16,7 @@ def _(qid, msg) :
         program.flush()
     elif cmd == '/get' :
         return program.getLine()
-    elif cmd == '/ins' :
+    elif cmd == '/ist' :
         program.insLine(data['content'], data['line'])
     elif cmd == '/del' :
         program.delLine(data['line'])
