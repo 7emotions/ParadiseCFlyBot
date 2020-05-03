@@ -71,7 +71,7 @@ def server() :
         elif cmd == '/music' :
             send_msg = music.get(re.sub(r'^/music *', '', r_msg))
         elif cmd == '/exec' :
-            send_msg=''#TODO: Exec
+            send_msg= execute(re.sub(r'^/exec *'))
         elif cmd == '/python' :
             runner = programrunning.PyExec(qid)
             send_msg = runner.exe(re.sub(r'^/python *', '', r_msg))
