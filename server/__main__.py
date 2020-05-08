@@ -5,6 +5,7 @@ import information
 import programrunning
 import music
 import re
+import GetSummary
 
 app = Flask(__name__)
 
@@ -14,7 +15,8 @@ cmds = {
     '/music' : '音乐加载中 ...',
     '/exec' : '',
     '/python' : '',
-    '/pronounce' : '查找中...'
+    '/pronounce' : '查找中...',
+    '/baike' : '查找中...'
 }
 
 def command(msg) :
@@ -77,6 +79,8 @@ def server() :
             send_msg = runner.exe(re.sub(r'^/python *', '', r_msg))
         elif cmd == '/pronounce':
             send_msg = information.pronounce(re.sub(r'^/pronounce *','',r_msg))
+        elif cmd == '/baike':
+        	send_msg = GetSummary.baike(re.sub(r'^/baike *','',r_msg))
         else :
             send_msg = ''
 
