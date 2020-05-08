@@ -5,6 +5,7 @@ import information
 import programrunning
 import music
 import re
+import GetSummary
 
 app = Flask(__name__)
 
@@ -13,9 +14,30 @@ cmds = {
     '/translate' : '翻译中 ...',
     '/music' : '音乐加载中 ...',
     '/exec' : '',
-    '/py' : '',
-    '/pronounce' : '查找中...'
+    '/python' : '',
+    '/pronounce' : '查找中...',
+    '/baike' : '查找中...'
 }
+
+def command(msg) :
+    '''
+    Fetch command from a raw message
+
+    Args:
+        msg: message
+    Returns:
+        String, command.
+        example:
+            search
+            translate
+    '''
+    catch = re.match(r'\/\w+', msg)
+    if catch :
+        catch = catch.group()
+        info('Catched command: ' + catch)
+        if catch in cmds :
+            return catch
+    return False
 
 @app.route('/',methods=['POST'])
 def server() :
@@ -24,8 +46,8 @@ def server() :
 
     r_msg = data['raw_message']   # 消息体
     c_type = data['message_type'] # 消息来源类型
-
     qid = data['user_id']
+
     if 'discuss_id' in data :
         id = data['discuss_id']
     elif 'group_id' in data :
@@ -34,6 +56,7 @@ def server() :
         id = qid
 
     cmd = command(r_msg) # 命令请求
+
     if r_msg and cmd :
         if cmds[cmd] != '' :
             send(cmds[cmd], id, c_type)
@@ -50,11 +73,14 @@ def server() :
         elif cmd == '/music' :
             send_msg = music.get(re.sub(r'^/music *', '', r_msg))
         elif cmd == '/exec' :
-            send_msg = execute(re.sub(r'^/exec *', '', r_msg))
-        elif cmd == '/py' :
-            send_msg = programrunning._(qid, re.sub(r'^/py *', '', r_msg))
+            send_msg= execute(re.sub(r'^/exec *'))
+        elif cmd == '/python' :
+            runner = programrunning.PyExec(qid)
+            send_msg = runner.exe(re.sub(r'^/python *', '', r_msg))
         elif cmd == '/pronounce':
             send_msg = information.pronounce(re.sub(r'^/pronounce *','',r_msg))
+        elif cmd == '/baike':
+        	send_msg = GetSummary.baike(re.sub(r'^/baike *','',r_msg))
         else :
             send_msg = ''
 
