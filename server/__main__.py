@@ -5,7 +5,7 @@ import information
 import programrunning
 import music
 import re
-import GetSummary
+import IniFileHelper
 
 app = Flask(__name__)
 
@@ -16,7 +16,8 @@ cmds = {
     '/exec' : '',
     '/python' : '',
     '/pronounce' : '查找中...',
-    '/baike' : '查找中...'
+    '/baike' : '查找中...',
+    '/addqid' : '添加中...'
 }
 
 def command(msg) :
@@ -44,9 +45,13 @@ def server() :
     data = request.get_data().decode('utf-8')
     data = loads(data)
 
+    qid = data['user_id']
+
+    if not qid in IniFileHelper.getHAQid() :
+        return ''
+
     r_msg = data['raw_message']   # 消息体
     c_type = data['message_type'] # 消息来源类型
-    qid = data['user_id']
 
     if 'discuss_id' in data :
         id = data['discuss_id']
@@ -80,7 +85,12 @@ def server() :
         elif cmd == '/pronounce':
             send_msg = information.pronounce(re.sub(r'^/pronounce *','',r_msg))
         elif cmd == '/baike':
-        	send_msg = GetSummary.baike(re.sub(r'^/baike *','',r_msg))
+        	send_msg = information.baike(re.sub(r'^/baike *','',r_msg))
+        elif cmd == '/addqid' :
+            if qid in IniFileHelper.getAdminQid() :
+                send_msg = 'Successfully Added!' if IniFileHelper.addHAQid(re.sub(r'^/addqid *','',r_msg)) else 'Failed to add!'
+            else :
+                send_msg = 'Permission denied.'
         else :
             send_msg = ''
 
