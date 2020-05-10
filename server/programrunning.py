@@ -1,101 +1,211 @@
+#!/usr/bin/python
+# -*- coding:utf8 -*-
 from utilities import *
 from random import random
-import os
 import re
+import os
+import json
 info("[ProgramRunning] module loaded")
 
-class PyExec(object):
-    """run python"""
-    def __init__(self, qid):
-        self.f_name = str(qid)
-        self.cmd_list=[]        
-        self.pcmds={
-            '/a':'AddCmd',
-            '/d':'DelCmd',
-            '/v':'GetCode',
-            '/c':'ChangeCode',
-            '/r':'RunCmd',
-            '/l':'Clear'
-        }
+pcmds = [
+    '/get',
+    '/flush',
+    '/del',
+    '/ist',
+    '/edt',
+    '/run',
+    '/fetch',
+    '/clear'
+]
 
-    def exe(self,msg) :
-        catch = re.match(r'\/\w+', msg)
-        if catch :
-            catch = catch.group()
-            info('Catched cmd: ' + catch)
-            if catch in self.pcmds :
-                cmd = re.sub(r'^'+ catch +r' *', '', msg)
-                if catch == '/c':
-                    pass 
-                elif catch == '/a' or catch == '/d':
-                    cmd = 'self.' + self.pcmds[catch] + '(r"' + re.sub('\"', '\\"', cmd) + '")'
-                else:
-                    cmd = 'self.' + self.pcmds[catch] + '(' + str(re.sub('\"', '\\"', cmd)) + ')'
-                data = eval(cmd)
-                print(self.cmd_list)
-                print(data)
-                self.save()
-                return data
-        else:
-            return ''
 
-    def save(self):
-        with open('./../db/'+self.f_name,'w') as fileObj:
-            for cmd in self.cmd_list:
-                print(cmd)
-                fileObj.write(cmd+'\n')
+def command(msg) :
+    catch = re.match(r'\/\w+', msg)
+    if catch :
+        catch = catch.group()
+        info('Catched command: ' + catch)
+        if catch in pcmds :
+            return catch
+    return False
 
-    def AddCmd(self, cmd):
-        '''
-        Add a command to .py file
-        '''
-        info('Add cmd: ' + cmd)
-        self.cmd_list.append(cmd)
 
-    def DelCmd(self, m):
+def _(qid, msg) :
+    qid = str(qid)
+    program = ProgramRunning(qid)
+    cmd = command(msg)
+    data = analyze(msg)
+    if cmd == '/flush' :
+        program.flush()
+    elif cmd == '/get' :
+        return program.getLine(data['line'])
+    elif cmd == '/ist' :
+        program.insLine(data['content'], data['line'])
+    elif cmd == '/del' :
+        program.delLine(data['line'])
+    elif cmd == '/edt' :
+        program.edtLine(data['line'], data['content'])
+    elif cmd == '/run' :
+        return program.run()
+    elif cmd == '/fetch' :
+        return program.fetch()
+    elif cmd == '/clear' :
+        program.clear()
+    return program.shwCode()
+    program.store()
+
+def analyze(msg) :
+    '''
+    analyzing command
+
+    Returns:
+        {dict} : {'line': {int}|False, 'content': {string}}
+    '''
+    line = re.search(r'(?<=\/\w{3,3} )[0-9]+(?= .*)?', msg)
+    if not line :
+        line = False
+        content = re.sub(r'^\/\w+ ', '', msg)
+    else :
+        line = int(line.group())
+        content = re.sub(r'^\/\w+ %s '%(line), '', msg)
+    return {'line': line, 'content': content}
+
+class ProgramRunning(object):
+    '''
+    Program Running
+    '''
+
+    # file content
+    content = []
+
+    # number of lines
+    line = 0
+
+    #file name
+    fname = 'null'
+
+    def __init__(self, fname = 'null', content = ''):
+        super(ProgramRunning, self).__init__()
+        self.fname = './../db/' + fname + '.json'
+        if content :
+            if type(content) == str :
+                self.content = [content]
+            elif type(content) == list :
+                self.content = content
+        else :
+            old_data = self.fetch()
+            if old_data :
+                self.content = old_data
+            self.flush()
+
+    def flush(self) :
         '''
-        Delete a command
+        Flush content
+
+        Returns:
+            {list} : content after flush
         '''
-        if m < len(self.cmd_list):
-            info('Delete cmd at line '+str(m)+':'+self.cmd_list[m])
-            self.cmd_list.pop(m)
-            return True
-        else:
+        self.line = len(self.content)
+        for ind in range(len(self.content)):
+            line = ind + 1
+            if "\n" in self.getLine(line) :
+                con = self.getLine(line).split("\n")
+                self.delLine(line, False)
+                for x in range(len(con)) :
+                    self.insLine(con[x], line + x, False)
+            self.line = len(self.content)
+        self.store()
+        return self.content
+
+    def getLine(self, line = False) :
+        if not line :
+            line = self.line
+        return self.content[line-1]
+
+    def shwCode(self, format = True) :
+        lined_content = self.content.copy()
+        if format :
+            for ind in range(len(lined_content)) :
+                line = ind + 1
+                lined_content[ind] = str(line) + ' | ' + lined_content[ind]
+        return "\n".join(lined_content)
+
+    def insLine(self, content = '', line = False, flush = True) :
+        '''
+        insert code at someline
+        '''
+        if not line :
+            line = self.line + 1
+
+        self.content.insert(line - 1, content)
+        if flush :
+            self.flush()
+        return self.content
+
+    def delLine(self, line = False, flush = True) :
+        '''
+        Delete code at some line
+
+        Args:
+            line {int} : line of command, if not given, the last line will be deleted
+        Returns:
+            {bool|list} : delete status
+
+        '''
+        if line > self.line :
             return False
+        elif not line :
+            line = self.line
 
-    def GetCode(self):
+        # contents that before the line
+        before = self.content[0: line]
+        # contents that after the line
+        after = self.content[line: self.line]
+        before.pop()
+        self.content = before + after
+        if flush :
+            self.flush()
+        return self.content
+
+    def edtLine(self, line, content = '') :
         '''
-        Get command dictionary
+        edit the content of a line
         '''
-        info('Get Python Code')
-        with open('./../db/'+self.f_name,'rb') as fileObj:
-            data=fileObj.read()
+        self.delLine(line)
+        self.insLine(content, line)
+        return self.content
+
+    def run(self) :
+        '''
+        run code
+        '''
+        f_name = self.fname + '.py'
+        with open(f_name,'w+') as fileObj:
+            fileObj.write("\n".join(self.content))
+        data = execute('python '+ f_name)
+        if os.path.exists(f_name) :
+            os.remove(f_name)
+        self.flush()
         return data
 
-    def ChangeCode(self, m,cmd):
+    def store(self) :
         '''
-        Change command at line m
+        storing data
         '''
-        if m <len(self.cmd_list):
-            info('Change Command:' + self.cmd_list[m] + ' line:'+str(m)+' to ' + cmd)
-            self.cmd_list.pop(m)
-            self.cmd_list.insert(m,cmd)
-            return True
-        else:
+        f = open(self.fname, 'w+')
+        f.write(json.dumps(self.content))
+        f.close()
+
+    def fetch(self) :
+        fname = self.fname
+        if os.path.exists(fname) :
+            f = open(fname, 'r')
+            return json.loads(f.read())
+        else :
             return False
 
-    def RunCmd(self):
-        '''
-        Run python
-        '''
-        info('Running python')
-        info('Creating python file:'+self.f_name)
-        os.system('python {f} >> {f}.txt'.format(f='./../db/'+self.f_name))
-        with open('./../db/'+self.f_name+'.txt','rb') as fileObj:
-            data=fileObj.read()
-        return data
-    
-    def Clear(self):
-        self.cmd_list=[]
-        os.remove(self.f_name)
-        os.remove(self.f_name+'.txt')
+    def clear(self) :
+        fname = self.fname + '.json'
+        self.content = []
+        if os.path.exists(fname) :
+            os.remove(fname)
+        return self.flush()

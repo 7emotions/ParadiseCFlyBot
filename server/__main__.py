@@ -14,12 +14,13 @@ cmds = {
     '/translate' : '翻译中 ...',
     '/music' : '音乐加载中 ...',
     '/exec' : '',
-    '/python' : '',
+    '/py' : '',
     '/pronounce' : '查找中...',
     '/baike' : '查找中...',
     '/addqid' : '添加中...',
     '/help' : ''
 }
+
 
 def command(msg) :
     '''
@@ -40,6 +41,7 @@ def command(msg) :
         if catch in cmds :
             return catch
     return False
+
 
 @app.route('/',methods=['POST'])
 def server() :
@@ -83,9 +85,8 @@ def server() :
                 send_msg= execute(re.sub(r'^/exec *','',r_msg))
             else :
                 send_msg = 'Permission denied.'
-        elif cmd == '/python' :
-            runner = programrunning.PyExec(qid)
-            send_msg = runner.exe(re.sub(r'^/python *', '', r_msg))
+        elif cmd == '/py' :
+            send_msg = programrunning._(qid, re.sub(r'^/py *', '', r_msg))
         elif cmd == '/pronounce':
             send_msg = information.pronounce(re.sub(r'^/pronounce *','',r_msg))
         elif cmd == '/baike':
