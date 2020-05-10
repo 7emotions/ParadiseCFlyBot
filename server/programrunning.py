@@ -119,6 +119,8 @@ class ProgramRunning(object):
     def getLine(self, line = False) :
         if not line :
             line = self.line
+        if line == 0 :
+            return ''
         return self.content[line-1]
 
     def shwCode(self, format = True) :
@@ -204,7 +206,7 @@ class ProgramRunning(object):
             return False
 
     def clear(self) :
-        fname = self.fname + '.json'
+        fname = self.fname
         self.content = []
         if os.path.exists(fname) :
             os.remove(fname)
