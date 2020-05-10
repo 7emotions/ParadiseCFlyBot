@@ -80,7 +80,7 @@ def server() :
             send_msg = music.get(re.sub(r'^/music *', '', r_msg))
         elif cmd == '/exec' :
             if qid in IniFileHelper.getAdminQid() :
-                send_msg= execute(re.sub(r'^/exec *'))
+                send_msg= execute(re.sub(r'^/exec *','',r_msg))
             else :
                 send_msg = 'Permission denied.'
         elif cmd == '/python' :
