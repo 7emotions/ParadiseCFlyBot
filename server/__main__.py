@@ -17,7 +17,8 @@ cmds = {
     '/python' : '',
     '/pronounce' : '查找中...',
     '/baike' : '查找中...',
-    '/addqid' : '添加中...'
+    '/addqid' : '添加中...',
+    '/help' : ''
 }
 
 def command(msg) :
@@ -46,13 +47,9 @@ def server() :
     data = loads(data)
 
     qid = data['user_id']
-
-    if not qid in IniFileHelper.getHAQid() :
-        return ''
-
     r_msg = data['raw_message']   # 消息体
     c_type = data['message_type'] # 消息来源类型
-
+	
     if 'discuss_id' in data :
         id = data['discuss_id']
     elif 'group_id' in data :
@@ -60,6 +57,10 @@ def server() :
     else :
         id = qid
 
+    if (not qid in IniFileHelper.getHAQid()) and c_type == 'private':
+        send('您没有使用权限，请添加3393103594激活', id, c_type)
+        return ''
+    
     cmd = command(r_msg) # 命令请求
 
     if r_msg and cmd :
@@ -78,14 +79,19 @@ def server() :
         elif cmd == '/music' :
             send_msg = music.get(re.sub(r'^/music *', '', r_msg))
         elif cmd == '/exec' :
-            send_msg= execute(re.sub(r'^/exec *'))
+            if qid in IniFileHelper.getAdminQid() :
+                send_msg= execute(re.sub(r'^/exec *'))
+            else :
+                send_msg = 'Permission denied.'
         elif cmd == '/python' :
             runner = programrunning.PyExec(qid)
             send_msg = runner.exe(re.sub(r'^/python *', '', r_msg))
         elif cmd == '/pronounce':
             send_msg = information.pronounce(re.sub(r'^/pronounce *','',r_msg))
         elif cmd == '/baike':
-        	send_msg = information.baike(re.sub(r'^/baike *','',r_msg))
+            send_msg = information.baike(re.sub(r'^/baike *','',r_msg))
+        elif cmd == '/help' :
+            send_msg = information.help()
         elif cmd == '/addqid' :
             if qid in IniFileHelper.getAdminQid() :
                 send_msg = 'Successfully Added!' if IniFileHelper.addHAQid(re.sub(r'^/addqid *','',r_msg)) else 'Failed to add!'

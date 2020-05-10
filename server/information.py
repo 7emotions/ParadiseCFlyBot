@@ -9,12 +9,17 @@ from requests import get
 from random import choice
 from utilities import *
 from youdao_tr import youdao_tr
-
 from bs4 import BeautifulSoup
 
 info('[Information] module loaded')
 
 iJustWantUtoStudy = ['正弦定理','余弦定理','pornhub']
+
+def help() :
+    with open('./../data/help.txt','r',encoding='utf-8') as fileObj :
+        data = fileObj.read()
+        print(data)
+        return data
 
 def wikipedia(kwd, lang = 'zh') :
     base = 'https://'+lang+'.wikipedia.org/wiki/'
