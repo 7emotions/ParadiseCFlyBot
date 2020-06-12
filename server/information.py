@@ -10,6 +10,11 @@ from random import choice
 from utilities import *
 from youdao_tr import youdao_tr
 from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from urllib import parse
+from selenium.webdriver.support import expected_conditions as EC
 
 info('[Information] module loaded')
 
@@ -117,3 +122,74 @@ def baike( word ) :
         msg = "百度百科未收录该词条"
         print(msg)
         return msg
+
+def poem( title ):
+    def test_url( soup ) :
+        result = soup.find( text=re.compile("百度汉语中没有收录相关结果") )
+        if result :
+            return False
+        else:
+            return True
+
+    def getpoem( soup ) :
+        if soup.find( class_="poem-detail-item-content" ) :
+            poem = soup.find( class_="poem-detail-item-content" ).text
+            print(poem)
+            return poem
+
+    def start( title ):
+        keyword = urllib.parse.urlencode( {"title" : title} )
+        response = urllib.request.urlopen( "https://hanyu.baidu.com/s?wd=%s&from=poem" % keyword )
+        html = response.read()
+        soup = BeautifulSoup( html , "html.parser" )
+        if test_url( soup ) :
+            return getpoem( soup )
+        else :
+            return ''
+    
+    try :
+        result = start( title )
+        print(result)
+        return result
+    except AttributeError :
+        msg = "百度汉语中没有收录相关结果"
+        print(msg)
+        return msg
+
+def poem( msg ):
+    arg = msg.split('#')
+    title = arg[0]
+    author = ''
+    if '#' in msg :
+        author = arg[1]
+    browser = webdriver.Chrome()
+    print("Opening")
+    url = r'https://hanyu.baidu.com/s?wd='+parse.quote(title)
+    browser.get(url)
+    print('Wating...')
+    wait = WebDriverWait(browser, 10)
+    wait.until(EC.presence_of_element_located((By.ID,"main")))
+    soup = BeautifulSoup(browser.page_source,'html.parser')
+    browser.close()
+    #print(soup.prettify)
+    text = soup.findAll(id="body_p")
+    for tag in soup.findAll() :
+        if tag.name == 'em' :
+            tag.decompose()
+        if tag.name == 'span' and '朝代' in tag.get_text() :
+            tag.decompose()
+    if text == [] :
+        if author == '' :
+            return '无法获取，试试加上作者吧~PS：题目与作者要用#隔开哦'
+        authors = soup.findAll(name="span", attrs={"class" :"poem-list-item-author"})
+        poem_body = soup.findAll(name="div", attrs={"class" :"poem-list-item-body"})
+        #print(poem_body)
+        for i,tauthor in enumerate(authors) :
+            #print(tauthor)
+            if author in tauthor.get_text() :
+                Bpoem = poem_body[i].get_text()
+    else :
+        Bpoem = ''
+        for item in text:
+            Bpoem += item.get_text()
+    return Bpoem

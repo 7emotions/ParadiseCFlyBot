@@ -18,7 +18,8 @@ cmds = {
     '/pronounce' : '查找中...',
     '/baike' : '查找中...',
     '/addqid' : '添加中...',
-    '/help' : ''
+    '/help' : '',
+    '/poem' : '查找中...'
 }
 
 
@@ -93,6 +94,8 @@ def server() :
             send_msg = information.baike(re.sub(r'^/baike *','',r_msg))
         elif cmd == '/help' :
             send_msg = information.help()
+        elif cmd == '/poem' :
+            send_msg = information.poem(re.sub(r'^/poem *','',r_msg))
         elif cmd == '/addqid' :
             if qid in IniFileHelper.getAdminQid() :
                 send_msg = 'Successfully Added!' if IniFileHelper.addHAQid(re.sub(r'^/addqid *','',r_msg)) else 'Failed to add!'
