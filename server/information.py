@@ -123,39 +123,6 @@ def baike( word ) :
         print(msg)
         return msg
 
-def poem( title ):
-    def test_url( soup ) :
-        result = soup.find( text=re.compile("百度汉语中没有收录相关结果") )
-        if result :
-            return False
-        else:
-            return True
-
-    def getpoem( soup ) :
-        if soup.find( class_="poem-detail-item-content" ) :
-            poem = soup.find( class_="poem-detail-item-content" ).text
-            print(poem)
-            return poem
-
-    def start( title ):
-        keyword = urllib.parse.urlencode( {"title" : title} )
-        response = urllib.request.urlopen( "https://hanyu.baidu.com/s?wd=%s&from=poem" % keyword )
-        html = response.read()
-        soup = BeautifulSoup( html , "html.parser" )
-        if test_url( soup ) :
-            return getpoem( soup )
-        else :
-            return ''
-    
-    try :
-        result = start( title )
-        print(result)
-        return result
-    except AttributeError :
-        msg = "百度汉语中没有收录相关结果"
-        print(msg)
-        return msg
-
 def poem( msg ):
     arg = msg.split('#')
     title = arg[0]
@@ -173,12 +140,13 @@ def poem( msg ):
     browser.close()
     #print(soup.prettify)
     text = soup.findAll(id="body_p")
-    for tag in soup.findAll() :
-        if tag.name == 'em' :
-            tag.decompose()
-        if tag.name == 'span' and '朝代' in tag.get_text() :
-            tag.decompose()
+    
     if text == [] :
+        for tag in soup.findAll() :
+            if tag.name == 'em' :
+                tag.decompose()
+            if tag.name == 'span' and '朝代' in tag.get_text() :
+                tag.decompose()
         if author == '' :
             return '无法获取，试试加上作者吧~PS：题目与作者要用#隔开哦'
         authors = soup.findAll(name="span", attrs={"class" :"poem-list-item-author"})
