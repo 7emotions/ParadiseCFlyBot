@@ -19,7 +19,8 @@ cmds = {
     '/baike' : '查找中...',
     '/addqid' : '添加中...',
     '/help' : '',
-    '/poem' : '查找中...'
+    '/poem' : '查找中...',
+    '/echo' : ''
 }
 
 
@@ -101,6 +102,8 @@ def server() :
                 send_msg = 'Successfully Added!' if IniFileHelper.addHAQid(re.sub(r'^/addqid *','',r_msg)) else 'Failed to add!'
             else :
                 send_msg = 'Permission denied.'
+        elif cmd == '/echo':
+            send_msg=re.sub(r'^/echo *', '', r_msg)
         else :
             send_msg = ''
 

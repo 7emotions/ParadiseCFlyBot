@@ -1,5 +1,6 @@
 命令：
-/translate	 [文字] 	：翻译（中英互译）
-/music [歌曲名称] 	：点歌
-/pronounce [单词]	：单词发音
-/baike [关键词]	：百度百科
+/translate	 [文字] 		：翻译（中英互译）
+/music [歌曲名称] 		：点歌
+/pronounce [单词]		：单词发音
+/baike [关键词]		：百度百科
+/poem [古诗标题][#作者]	：查询古诗
