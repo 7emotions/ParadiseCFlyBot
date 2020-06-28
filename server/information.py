@@ -142,14 +142,9 @@ def poem( msg ):
     text = soup.findAll(id="body_p")
     
     if text == [] :
-        for tag in soup.findAll() :
-            if tag.name == 'em' :
-                tag.decompose()
-            if tag.name == 'span' and '朝代' in tag.get_text() :
-                tag.decompose()
         if author == '' :
             return '无法获取，试试加上作者吧~PS：题目与作者要用#隔开哦'
-        authors = soup.findAll(name="span", attrs={"class" :"poem-list-item-author"})
+        authors = soup.findAll(name="div", attrs={"class" :"poem-list-item-info"})
         poem_body = soup.findAll(name="div", attrs={"class" :"poem-list-item-body"})
         #print(poem_body)
         for i,tauthor in enumerate(authors) :
